@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO.Enumeration;
 using System.Net.Mime;
 
 namespace Brainfuck_JIT;
@@ -17,11 +18,11 @@ public enum OpCode
 
 class BrainfuckProgram
 {
-    public byte[] Memory = new byte[1024];
+    public byte[] Memory = new byte[12];
     private List<OpCode> Instructions = [];
     private int DataPointer = 0;
 
-    public void PrintMemory()
+    public void DumpMemory()
     {
         Console.Write("|");
         foreach (byte b in Memory)
@@ -45,14 +46,16 @@ class BrainfuckProgram
     {
         this.Memory[this.DataPointer] = value;
     }
-    
+
     public void Execute()
     {
         Reset();
-        foreach (OpCode opcode in this.Instructions)
+        int lastJumpPosition = -1;
+        for (int i = 0; i < this.Instructions.Count; i++)
         {
+            OpCode opcode = this.Instructions[i];
             byte value = GetCurrentByte();
-            int intValue = (int)value;
+            int intValue = value;
             switch (opcode)
             { 
                 case OpCode.INC:
@@ -70,7 +73,6 @@ class BrainfuckProgram
                         Console.WriteLine($"OOB Memory at {this.DataPointer + 1}");
                         Environment.Exit(1);
                     }
-
                     this.DataPointer++;
                     break;
                 case OpCode.DECDP:
@@ -80,29 +82,49 @@ class BrainfuckProgram
                         Console.WriteLine($"OOB Memory at {this.DataPointer - 1}");
                         Environment.Exit(1);
                     }
-
                     this.DataPointer--;
                     break;
                 case OpCode.OUT:
                     // Print out the current byte
-                    Console.WriteLine(value);
+                    Console.Write(Convert.ToChar(value));
                     break;
                 case OpCode.INP:
                     // TODO
                     throw new NotImplementedException();
                     break;
                 case OpCode.JZ:
-                    // TODO
-                    throw new NotImplementedException();
+                    // if the byte at the data pointer is zero, then instead of moving the instruction pointer forward to the next command, jump it forward to the command after the matching ] command.
+                    if (intValue == 0)
+                    {
+                        if (lastJumpPosition == -1)
+                        {
+                            Console.WriteLine($"Invalid jump position {lastJumpPosition}");
+                            Environment.Exit(0);
+                        }
+                        i = lastJumpPosition;
+                        break;
+                    }
+                    lastJumpPosition = i;
                     break;
                 case OpCode.JNZ:
-                    // TODO
-                    throw new NotImplementedException();
+                    // if the byte at the data pointer is non-zero, then instead of moving the instruction pointer forward to the next command, jump it forward to the command after the matching ] command.
+                    if (intValue != 0)
+                    {
+                        if (lastJumpPosition == -1)
+                        {
+                            Console.WriteLine($"Invalid jump position {lastJumpPosition}");
+                            Environment.Exit(0);
+                        }
+                        i = lastJumpPosition;
+                        break;
+                    }
+                    lastJumpPosition = i;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
+        Console.WriteLine("");
     }
 
     public void AppendOpcode(OpCode opcode)
@@ -118,6 +140,8 @@ class JIT
         // Remove all the unnecessary whitespace
         string normalizedProgramString = StringHelper.RemoveWhitespace(programString);
         BrainfuckProgram program = Parse(normalizedProgramString);
+        program.Execute();
+        program.DumpMemory();
     }
 
     private static BrainfuckProgram Parse(string programString)
@@ -133,7 +157,6 @@ class JIT
             OpCode parsedOpCode = (OpCode)opcode;
             program.AppendOpcode(parsedOpCode);
         }
-
         return program;
     }
 }
