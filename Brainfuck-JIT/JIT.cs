@@ -190,7 +190,6 @@ internal class BrainfuckProgram
 internal class Lexer(string programString)
 {
     private int _i = 0;
-    private string _programString = programString;
 
     /// <summary>
     /// Peek the next nth character
@@ -200,9 +199,9 @@ internal class Lexer(string programString)
     public char? Peek(int offset = 1)
     {
         int next = this._i + offset;
-        if (next > this._programString.Length - 1)
+        if (next > programString.Length - 1)
             return null;
-        return this._programString[next];
+        return programString[next];
     }
 
     /// <summary>
@@ -211,7 +210,7 @@ internal class Lexer(string programString)
     /// <returns>The consumed character</returns>
     public char Consume()
     {
-        char c = this._programString[this._i];
+        char c = programString[this._i];
         this._i++;
         return c;
     }
