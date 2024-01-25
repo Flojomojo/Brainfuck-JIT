@@ -26,11 +26,11 @@ public class BrainfuckProgram
     /// <summary>
     /// The program consists of x cells each containing one single byte
     /// </summary>
-    private byte[] Memory = new byte[32768];
+    private byte[] _memory = new byte[32768];
     /// <summary>
     /// The instructions to execute
     /// </summary>
-    private readonly List<OpCode> _instructions = [];
+    public readonly List<OpCode> Instructions = [];
     /// <summary>
     /// The pointer to the cell
     /// </summary>
@@ -42,7 +42,7 @@ public class BrainfuckProgram
     public void DumpMemory()
     {
         Console.Write("|");
-        foreach (byte b in Memory)
+        foreach (byte b in _memory)
         {
             Console.Write($"{b.ToString()}|");
         }
@@ -53,7 +53,7 @@ public class BrainfuckProgram
     /// </summary>
     private void Reset()
     {
-        Array.Clear(this.Memory, 0, this.Memory.Length);
+        Array.Clear(this._memory, 0, this._memory.Length);
         this._dataPointer = 0;
     }
 
@@ -63,7 +63,7 @@ public class BrainfuckProgram
     /// <returns>The current byte</returns>
     private byte GetCurrentByte()
     {
-        return this.Memory[this._dataPointer];
+        return this._memory[this._dataPointer];
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public class BrainfuckProgram
     /// <param name="value">The byte value to set</param>
     private void SetCurrentByte(byte value)
     {
-        this.Memory[this._dataPointer] = value;
+        this._memory[this._dataPointer] = value;
     }
 
     /// <summary>
@@ -84,9 +84,9 @@ public class BrainfuckProgram
         Reset();
         int lastJumpPosition = -1;
         // Iterate over all instructions and execute them line by line
-        for (int i = 0; i < this._instructions.Count; i++)
+        for (int i = 0; i < this.Instructions.Count; i++)
         {
-            var (opCodeType, repetition) = this._instructions[i];
+            var (opCodeType, repetition) = this.Instructions[i];
             byte value = GetCurrentByte();
             int intValue = value;
             switch (opCodeType)
@@ -103,7 +103,7 @@ public class BrainfuckProgram
                     // Increase the DP by x
                     int newDataPointer = this._dataPointer + repetition;
                     // Prevents OOB READ/WRITE
-                    if (newDataPointer > this.Memory.Length - 1)
+                    if (newDataPointer > this._memory.Length - 1)
                     {
                         Console.WriteLine($"OOB Memory at {newDataPointer}");
                         Environment.Exit(1);
@@ -183,7 +183,7 @@ public class BrainfuckProgram
     /// <param name="opcode">The opcode to append</param>
     public void AppendOpcode(OpCode opcode)
     {
-       this._instructions.Add(opcode); 
+       this.Instructions.Add(opcode); 
     }
 }
 
@@ -234,10 +234,14 @@ public class Lexer(string programString)
             OpCodeType parsedOpCodeType = (OpCodeType)opcode;
             // If there are repeating characters count them
             int repeatCount = 1;
-            while (Peek(0) == opcode)
+            // Exclude [, ], ,
+            if (parsedOpCodeType is not OpCodeType.JZ and not OpCodeType.JNZ and not OpCodeType.INP)
             {
-               repeatCount++;
-               Consume();
+                while (Peek(0) == opcode)
+                {
+                   repeatCount++;
+                   Consume();
+                }
             }
             OpCode parsedOpCode = new(parsedOpCodeType, repeatCount);
             //Console.WriteLine(parsedOpCode);
