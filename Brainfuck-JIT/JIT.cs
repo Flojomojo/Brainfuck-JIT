@@ -19,9 +19,9 @@ public enum OpCodeType
     JNZ = ']'
 }
 
-public record OpCode(OpCodeType Type, int Repetition);
+internal record OpCode(OpCodeType Type, int Repetition);
 
-class BrainfuckProgram
+internal class BrainfuckProgram
 {
     /// <summary>
     /// The program consists of x cells each containing one single byte
@@ -125,7 +125,10 @@ class BrainfuckProgram
                     break;
                 case OpCodeType.OUT:
                     // Print out the current byte as a ASCII char
-                    Console.Write(Convert.ToChar(value));
+                    for (int j = 0; j < repetition; j++)
+                    {
+                        Console.Write(Convert.ToChar(value));
+                    }
                     break;
                 case OpCodeType.INP:
                     // Takes a single byte as input and stores it at the current cell
@@ -184,38 +187,33 @@ class BrainfuckProgram
     }
 }
 
-public class Lexer(string programString)
+internal class Lexer(string programString)
 {
     private int _i = 0;
     private string _programString = programString;
 
-    public char? Peek()
+    /// <summary>
+    /// Peek the next nth character
+    /// </summary>
+    /// <param name="offset">The offset of the character</param>
+    /// <returns>The character or null if there are no more characters</returns>
+    public char? Peek(int offset = 1)
     {
-        int next = this.FindNextValidOpcode();
-        if (next == -1)
+        int next = this._i + offset;
+        if (next > this._programString.Length - 1)
             return null;
         return this._programString[next];
     }
 
+    /// <summary>
+    /// Consumes the next character
+    /// </summary>
+    /// <returns>The consumed character</returns>
     public char Consume()
     {
-        int next = this.FindNextValidOpcode();
-        char c = this._programString[next];
-        this._i = next;
+        char c = this._programString[this._i];
+        this._i++;
         return c;
-    }
-    private int FindNextValidOpcode()
-    {
-        int index = this._i + 1;
-        char c = this._programString[index];
-        while (!JIT.IsValidOpCode(c))
-        {
-            index++;
-            if (index > this._programString.Length - 1)
-                return -1;
-            c = this._programString[index];
-        }
-        return index;
     }
 }
 
@@ -229,6 +227,7 @@ public class JIT
     {
         // Parse and execute the program
         BrainfuckProgram program = Parse(programString);
+        // Check if it got correctly parsed by comparing the instructions to the expected output
         program.Execute();
         // Dump the memory at the end just to 
         //program.DumpMemory();
@@ -248,22 +247,43 @@ public class JIT
     {
         BrainfuckProgram program = new();
         Lexer lexer = new(programString);
-        while(lexer.Peek() is not null)
+        while(lexer.Peek(0) is not null)
         {
             char opcode = lexer.Consume();
+            // Check if the char is actually a valid opcode
+            OpCodeType parsedOpCodeType = (OpCodeType)opcode;
+            // If there are repeating characters count them
+            int repeatCount = 1;
+            while (lexer.Peek(0) == opcode)
+            {
+               repeatCount++;
+               lexer.Consume();
+            }
+            OpCode parsedOpCode = new(parsedOpCodeType, repeatCount);
+            //Console.WriteLine(parsedOpCode);
+            program.AppendOpcode(parsedOpCode);
+        }
+        return program;
+    }
+
+    /// <summary>
+    /// Takes a program string and then parses it without of repeating character folding into a program
+    /// </summary>
+    /// <param name="programString">The brainfuck program to parse</param>
+    /// <returns>The parsed Brainfuck Program</returns>
+    private static BrainfuckProgram ParseWithoutFolding(string programString)
+    {
+        
+        BrainfuckProgram program = new();
+        foreach (var opcode in programString)
+        {
             // Invalid opcodes are just ignored
             if (!IsValidOpCode(opcode))
                 continue;
             // Check if the char is actually a valid opcode
             OpCodeType parsedOpCodeType = (OpCodeType)opcode;
             // If there are repeating characters count them
-            int repeatCount = 1;
-            while (lexer.Peek() == opcode)
-            {
-               repeatCount++;
-               lexer.Consume();
-            }
-            OpCode parsedOpCode = new(parsedOpCodeType, repeatCount);
+            OpCode parsedOpCode = new(parsedOpCodeType, 1);
             program.AppendOpcode(parsedOpCode);
         }
         return program;
