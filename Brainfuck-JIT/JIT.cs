@@ -82,7 +82,6 @@ class BrainfuckProgram
         for (int i = 0; i < this.Instructions.Count; i++)
         {
             OpCode opcode = this.Instructions[i];
-            Console.WriteLine(opcode);
             byte value = GetCurrentByte();
             int intValue = value;
             switch (opcode)
@@ -121,6 +120,7 @@ class BrainfuckProgram
                     break;
                 case OpCode.INP:
                     // Takes a single byte as input and stores it at the current cell
+                    Console.Write("> ");
                     ConsoleKeyInfo keyInfo = Console.ReadKey();
                     char inputChar = keyInfo.KeyChar;
 
@@ -183,10 +183,8 @@ class JIT
     /// <param name="programString">The brainfuck program</param>
     public static void Run(string programString)
     {
-        // Remove all the unnecessary whitespace
-        string normalizedProgramString = StringHelper.RemoveWhitespace(programString);
         // Parse and execute the program
-        BrainfuckProgram program = Parse(normalizedProgramString);
+        BrainfuckProgram program = Parse(programString);
         program.Execute();
         // Dump the memory at the end just to 
         //program.DumpMemory();
@@ -205,8 +203,8 @@ class JIT
             // Check if the char is actually a valid opcode
             if (!Enum.IsDefined(typeof(OpCode), (int)opcode))
             {
-                Console.WriteLine($"Invalid opcode: {opcode}");
-                Environment.Exit(1);
+                // Invalid chars are just ignored
+                continue;
             }
             OpCode parsedOpCode = (OpCode)opcode;
             program.AppendOpcode(parsedOpCode);
