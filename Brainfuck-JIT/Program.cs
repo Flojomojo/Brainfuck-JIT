@@ -6,7 +6,7 @@ class Program
     {
         string program = LoadProgram("hello_world.bf");
         Console.WriteLine("Loaded program");
-        JIT.Run(program);
+        JIT.JIT.Run(program);
     }
 
     static string LoadProgram(string filename)
