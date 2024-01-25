@@ -21,7 +21,7 @@ class BrainfuckProgram
     /// <summary>
     /// The program consists of x cells each containing one single byte
     /// </summary>
-    public byte[] Memory = new byte[1024];
+    public byte[] Memory = new byte[32768];
     /// <summary>
     /// The instructions to execute
     /// </summary>
@@ -73,7 +73,6 @@ class BrainfuckProgram
     /// <summary>
     /// Actually executes the program
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">If a opcode is reached that is not part of the standard 8 opcodes</exception>
     public void Execute()
     {
         // First make sure everything is reset
@@ -83,6 +82,7 @@ class BrainfuckProgram
         for (int i = 0; i < this.Instructions.Count; i++)
         {
             OpCode opcode = this.Instructions[i];
+            Console.WriteLine(opcode);
             byte value = GetCurrentByte();
             int intValue = value;
             switch (opcode)
@@ -120,8 +120,12 @@ class BrainfuckProgram
                     Console.Write(Convert.ToChar(value));
                     break;
                 case OpCode.INP:
-                    // TODO
-                    throw new NotImplementedException();
+                    // Takes a single byte as input and stores it at the current cell
+                    ConsoleKeyInfo keyInfo = Console.ReadKey();
+                    char inputChar = keyInfo.KeyChar;
+
+                    byte byteValue = Convert.ToByte(inputChar);
+                    SetCurrentByte(byteValue); 
                     break;
                 case OpCode.JZ:
                     // if the byte at the data pointer is zero, then instead of moving the instruction pointer forward to the next command, jump it forward to the command after the matching ] command.
@@ -154,8 +158,8 @@ class BrainfuckProgram
                     lastJumpPosition = i;
                     break;
                 default:
-                    // Invalid opcode
-                    throw new ArgumentOutOfRangeException();
+                    // Invalid opcode (should just be ignored)
+                    break;
             }
         }
         Console.WriteLine("");
@@ -185,7 +189,7 @@ class JIT
         BrainfuckProgram program = Parse(normalizedProgramString);
         program.Execute();
         // Dump the memory at the end just to 
-        program.DumpMemory();
+        //program.DumpMemory();
     }
 
     /// <summary>
