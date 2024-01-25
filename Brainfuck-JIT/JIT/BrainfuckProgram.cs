@@ -21,7 +21,7 @@ public class BrainfuckProgram
     /// <summary>
     /// The program consists of x cells each containing one single byte
     /// </summary>
-    private byte[] _memory = new byte[32768];
+    private byte[] _memory = new byte[(int)Math.Pow(2,30)];
 
     /// <summary>
     /// The instructions to execute
