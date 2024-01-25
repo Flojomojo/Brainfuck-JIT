@@ -1,13 +1,10 @@
-using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO.Enumeration;
-using System.Net.Mime;
-using System.Reflection.Metadata;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Brainfuck_JIT;
 
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+[SuppressMessage("ReSharper", "IdentifierTypo")]
 public enum OpCodeType
 {
     INC = '+',
