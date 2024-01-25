@@ -78,7 +78,7 @@ public class Parser(BrainfuckProgram program, string programString)
         Error[] errors = CheckSyntax();
         if (errors.Length == 0)
             return;
-        const int range = 5;
+        const int range = 8;
         foreach (Error error in errors)
         {
             string rebuiltProgramString = RebuildProgramString(error.Index, range);
@@ -87,10 +87,17 @@ public class Parser(BrainfuckProgram program, string programString)
             indicatorString += "^";
             indicatorString += $" {error.ErrorMessage}";
             // Add one to the index because the index is zero based
-            Console.WriteLine($"error: {error.ErrorMessage} at character {error.Index + 1}");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("error");
+            Console.ResetColor();
+            Console.WriteLine($": {error.ErrorMessage} at character {error.Index + 1}");
+            Console.ResetColor();
             Console.WriteLine(rebuiltProgramString);
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(indicatorString);
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("------------");
+            Console.ResetColor();
         }
         Environment.Exit(1);
     }
