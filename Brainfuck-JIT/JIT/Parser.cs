@@ -4,8 +4,18 @@ namespace Brainfuck_JIT.JIT;
 
 public class Parser(BrainfuckProgram program, string programString)
 {
+    /// <summary>
+    /// The error class
+    /// </summary>
+    /// <param name="OpCode">The opcode that causes the error</param>
+    /// <param name="Index">The index of the error</param>
+    /// <param name="ErrorMessage">The error message</param>
     private record Error(OpCode OpCode, int Index, string ErrorMessage);
-    
+   
+    /// <summary>
+    /// Checks the syntax of a brainfuck program
+    /// </summary>
+    /// <returns>A array of errors contained in the program</returns>
     private Error[] CheckSyntax()
     {
         List<Error> errors = [];
@@ -18,6 +28,7 @@ public class Parser(BrainfuckProgram program, string programString)
                 case OpCodeType.JZ:
                     openingBracketsFound.Add(i);
                     break;
+                // If there are ] without a corresponding [
                 case OpCodeType.JNZ:
                     if (openingBracketsFound.Count <= 0)
                     {
@@ -29,7 +40,7 @@ public class Parser(BrainfuckProgram program, string programString)
                     break;
             }
         }
-        // If there are still some open brackets open without their corresponding closing bracket
+        // If there are still some [ without their corresponding ]
         if (openingBracketsFound.Count > 0)
         {
             foreach (int openingBracketIndex in openingBracketsFound)
@@ -42,9 +53,14 @@ public class Parser(BrainfuckProgram program, string programString)
         return errors.ToArray();
     }
 
+    /// <summary>
+    /// Finds the correct index of a opcode
+    /// So if we have the nth opcode what was the original index of the opcode in the source code
+    /// </summary>
+    /// <param name="index">The "fake" index</param>
+    /// <returns>The correct string index</returns>
     private int FindCorrectIndex(int index)
     {
-        // Get all the tokens before the index and count them
         int count = 0;
         for (int i = 0; i < index; i++)
         {
@@ -53,7 +69,10 @@ public class Parser(BrainfuckProgram program, string programString)
         }
         return count;
     }
-    
+   
+    /// <summary>
+    /// Checks the syntax and handles the errors
+    /// </summary>
     public void Parse()
     {
         Error[] errors = CheckSyntax();
@@ -76,6 +95,12 @@ public class Parser(BrainfuckProgram program, string programString)
         Environment.Exit(1);
     }
 
+    /// <summary>
+    /// Gets the range of characters around the error
+    /// </summary>
+    /// <param name="index">The index of the error character</param>
+    /// <param name="range">The range around the characters</param>
+    /// <returns>The correct program string snippet</returns>
     private string RebuildProgramString(int index, int range)
     {
         // TODO do this with only the tokens
