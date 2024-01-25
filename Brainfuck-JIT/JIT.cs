@@ -19,9 +19,9 @@ public enum OpCodeType
     JNZ = ']'
 }
 
-internal record OpCode(OpCodeType Type, int Repetition);
+public record OpCode(OpCodeType Type, int Repetition);
 
-internal class BrainfuckProgram
+public class BrainfuckProgram
 {
     /// <summary>
     /// The program consists of x cells each containing one single byte
@@ -187,7 +187,7 @@ internal class BrainfuckProgram
     }
 }
 
-internal class Lexer(string programString)
+public class Lexer(string programString)
 {
     private int _i = 0;
 
@@ -196,7 +196,7 @@ internal class Lexer(string programString)
     /// </summary>
     /// <param name="offset">The offset of the character</param>
     /// <returns>The character or null if there are no more characters</returns>
-    public char? Peek(int offset = 1)
+    private char? Peek(int offset = 1)
     {
         int next = this._i + offset;
         if (next > programString.Length - 1)
@@ -208,55 +208,36 @@ internal class Lexer(string programString)
     /// Consumes the next character
     /// </summary>
     /// <returns>The consumed character</returns>
-    public char Consume()
+    private char Consume()
     {
         char c = programString[this._i];
         this._i++;
         return c;
     }
-}
-
-public class JIT
-{
-    /// <summary>
-    /// Runs a brainfuck program
-    /// </summary>
-    /// <param name="programString">The brainfuck program</param>
-    public static void Run(string programString)
-    {
-        // Parse and execute the program
-        BrainfuckProgram program = Parse(programString);
-        // Check if it got correctly parsed by comparing the instructions to the expected output
-        program.Execute();
-        // Dump the memory at the end just to 
-        //program.DumpMemory();
-    }
-
-    public static bool IsValidOpCode(char c)
+    
+    private static bool IsValidOpCode(char c)
     {
         return Enum.IsDefined(typeof(OpCodeType), (int)c);
     }
     
     /// <summary>
-    /// Takes a program string and then parses it into a program
+    /// Takes a program string and then tokenize it into a program
     /// </summary>
-    /// <param name="programString">The brainfuck program to parse</param>
     /// <returns>The parsed Brainfuck Program</returns>
-    private static BrainfuckProgram Parse(string programString)
+    public BrainfuckProgram Tokenize()
     {
         BrainfuckProgram program = new();
-        Lexer lexer = new(programString);
-        while(lexer.Peek(0) is not null)
+        while(Peek(0) is not null)
         {
-            char opcode = lexer.Consume();
+            char opcode = Consume();
             // Check if the char is actually a valid opcode
             OpCodeType parsedOpCodeType = (OpCodeType)opcode;
             // If there are repeating characters count them
             int repeatCount = 1;
-            while (lexer.Peek(0) == opcode)
+            while (Peek(0) == opcode)
             {
                repeatCount++;
-               lexer.Consume();
+               Consume();
             }
             OpCode parsedOpCode = new(parsedOpCodeType, repeatCount);
             //Console.WriteLine(parsedOpCode);
@@ -266,13 +247,11 @@ public class JIT
     }
 
     /// <summary>
-    /// Takes a program string and then parses it without of repeating character folding into a program
+    /// Takes a program string and then tokenizes it without of repeating character folding into a program
     /// </summary>
-    /// <param name="programString">The brainfuck program to parse</param>
-    /// <returns>The parsed Brainfuck Program</returns>
-    private static BrainfuckProgram ParseWithoutFolding(string programString)
+    /// <returns>The lexed Brainfuck Program</returns>
+    public BrainfuckProgram TokenizeWithoutFolding()
     {
-        
         BrainfuckProgram program = new();
         foreach (var opcode in programString)
         {
@@ -287,4 +266,20 @@ public class JIT
         }
         return program;
     }
+}
+
+public class JIT
+{
+    /// <summary>
+    /// Runs a brainfuck program
+    /// </summary>
+    /// <param name="programString">The brainfuck program</param>
+    public static void Run(string programString)
+    {
+        // Parse and execute the program
+        Lexer lexer = new Lexer(programString);
+        lexer.Tokenize();
+    }
+
+    
 }
