@@ -22,6 +22,9 @@ public class OpCode(OpCodeType type, int repetition)
     public OpCodeType Type { get; set; } = type;
     public int Repetition { get; set; } = repetition;
 
+    /// <summary>
+    /// The asm of the opcode
+    /// </summary>
     public string[] Asm
     {
         get
@@ -54,6 +57,9 @@ public class OpCode(OpCodeType type, int repetition)
     }
 
 
+    /// <summary>
+    /// The table of opcodes to assembly
+    /// </summary>
     private readonly Dictionary<OpCodeType, string[]> _opCodeToAsmTable = new()
     {
         { OpCodeType.INC, [$"add byte [r12], {repetition}"]},

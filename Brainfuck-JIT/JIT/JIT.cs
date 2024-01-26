@@ -4,6 +4,11 @@ namespace Brainfuck_JIT.JIT;
 
 public class JIT
 {
+    /// <summary>
+    /// Compiles a brainfuck program to a nasm program
+    /// </summary>
+    /// <param name="program">The program to compile</param>
+    /// <param name="filename">The filename that the compiled executable shoudl have</param>
     public void Compile(BrainfuckProgram program, string filename)
     {
         // Load the boilerplate.asm file
@@ -12,7 +17,7 @@ public class JIT
         // Split the boilerplate file into header and footer
         // Header starts at 0 and ends at the line before replaceWord
         // Footer starts at the line after replaceWorld and ends at EOF
-        int replaceWordIndex = FindReplaceWorldIndex(replaceWord, boilerplate);
+        int replaceWordIndex = FindReplaceWordIndex(replaceWord, boilerplate);
         if (replaceWordIndex == -1)
         {
             Console.WriteLine($"Could not find replace word {replaceWord} in boilerplate asm code");
@@ -25,7 +30,13 @@ public class JIT
         WriteFile(header,footer, code, $"{filename}.asm");
         RunCompileCommand(filename);
     }
-    
+   
+    /// <summary>
+    /// Checks if a command is available
+    /// </summary>
+    /// <param name="commandName">The command to check for availability</param>
+    /// <param name="arguments">The args of the command</param>
+    /// <returns>True if the command is available</returns>
     static bool IsCommandAvailable(string commandName, string arguments)
     {
         try
@@ -53,7 +64,11 @@ public class JIT
             return false;
         }
     } 
-    
+   
+    /// <summary>
+    /// Executes a command
+    /// </summary>
+    /// <param name="command">The command to execute</param>
     private static void ExecuteCommand(string command)
     {
         Process process = new Process
@@ -90,6 +105,10 @@ public class JIT
         }
     }
 
+    /// <summary>
+    /// Runs the compile command
+    /// </summary>
+    /// <param name="filename">The filename of the source code file</param>
     private static void RunCompileCommand(string filename)
     {
         if (!IsCommandAvailable("nasm", "--version"))
@@ -107,7 +126,13 @@ public class JIT
         ExecuteCommand($"rm {filename}.o");
     }
 
-    private static int FindReplaceWorldIndex(string replaceWord, IReadOnlyList<string> fileContent)
+    /// <summary>
+    /// Finds the index of the line that contains the replace word 
+    /// </summary>
+    /// <param name="replaceWord">The word where the asm code should go</param>
+    /// <param name="fileContent">The content of the file to search for</param>
+    /// <returns>The index</returns>
+    private static int FindReplaceWordIndex(string replaceWord, IReadOnlyList<string> fileContent)
     {
         for (int i = 0; i < fileContent.Count; i++)
         {
@@ -118,6 +143,13 @@ public class JIT
         return -1;
     }
 
+    /// <summary>
+    /// Write a file
+    /// </summary>
+    /// <param name="header">The header asm code</param>
+    /// <param name="footer">The footer asm code</param>
+    /// <param name="code">The asm code</param>
+    /// <param name="filename">The filename to write to</param>
     private static void WriteFile(string[] header, string[] footer, string[] code, string filename)
     {
         List<string> result = [];
@@ -128,6 +160,11 @@ public class JIT
         // TODO compile it
     }
 
+    /// <summary>
+    /// Converts a program to asm code
+    /// </summary>
+    /// <param name="program">The program to convert</param>
+    /// <returns>The asm code</returns>
     private static string[] ToAsm(BrainfuckProgram program)
     {
         List<string> result = [];
