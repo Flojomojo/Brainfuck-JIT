@@ -5,6 +5,7 @@
 - OOB error handling
 - Runs any bf "program"
 - Easy to understand code
+- Note: Currently only a interpreter is implemented
 
 ## References
 - https://en.wikipedia.org/wiki/Brainfuck
