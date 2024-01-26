@@ -1,4 +1,5 @@
-﻿using Brainfuck_JIT.JIT;
+﻿using System.Runtime.InteropServices;
+using Brainfuck_JIT.JIT;
 
 namespace Brainfuck_JIT;
 
@@ -6,10 +7,13 @@ class Program
 {
     public static void Main(string[] args)
     {
-        string program = LoadProgram("hello_world.bf");
+        string programString = LoadProgram("hello_world.bf");
         Console.WriteLine("Loaded program");
-        Interpreter interpreter = new();
-        interpreter.Run(program); 
+        BrainfuckProgram program = IR.Parse(programString);
+        //Interpreter interpreter = new();
+        //interpreter.Run(program); 
+        JIT.JIT jit = new();
+        jit.Compile(program);
     }
 
     private static string LoadProgram(string filename)

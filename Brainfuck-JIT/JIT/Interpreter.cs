@@ -6,14 +6,9 @@ public class Interpreter
     /// <summary>
     /// Runs a brainfuck program
     /// </summary>
-    /// <param name="programString">The brainfuck program</param>
-    public void Run(string programString)
+    /// <param name="program">The brainfuck program in IR</param>
+    public void Run(BrainfuckProgram program)
     {
-        // Parse and execute the program
-        Lexer lexer = new Lexer(programString);
-        BrainfuckProgram program = lexer.Tokenize();
-        Parser parser = new(program, programString);
-        parser.Parse();
         Execute(program);
     }
     

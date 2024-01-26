@@ -18,6 +18,9 @@
       <None Update="hello_world.bf">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="boilerplate.asm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -91,11 +91,6 @@ public class Lexer(string programString)
             closingBracketPositions.TryPop(out var correctClosingBracketPosition);
             opcode.Repetition = correctClosingBracketPosition;
         }
-
-        foreach (OpCode instruction in program.Instructions)
-        {
-            Console.WriteLine(instruction);
-        }
         
         return program;
     }
