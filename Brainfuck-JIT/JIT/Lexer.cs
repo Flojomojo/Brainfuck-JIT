@@ -1,3 +1,5 @@
+using System.Net.Mail;
+
 namespace Brainfuck_JIT.JIT;
 
 public class Lexer(string programString)
@@ -40,6 +42,8 @@ public class Lexer(string programString)
     public BrainfuckProgram Tokenize()
     {
         BrainfuckProgram program = new();
+        Stack<int> closingBracketPositions = [];
+        Stack<int> openingBracketPositions = [];
         while(Peek(0) is not null)
         {
             char opcode = Consume();
@@ -56,10 +60,43 @@ public class Lexer(string programString)
                     Consume();
                 }
             }
+            
+            // For JZ and JNZ the "repetitions" are the jump positions
+            // This is done via back patching for JZ
+            if (parsedOpCodeType is OpCodeType.JZ)
+            {
+                openingBracketPositions.Push(program.Instructions.Count);
+            }
+            else if (parsedOpCodeType is OpCodeType.JNZ)
+            {
+                closingBracketPositions.Push(program.Instructions.Count);
+                // If there is no opening bracket for the opening bracket this is here just set to 0, because the Parser will handle it 
+                openingBracketPositions.TryPop(out var correctOpeningBracketPosition);
+                repeatCount = correctOpeningBracketPosition;
+            }
+            
             OpCode parsedOpCode = new(parsedOpCodeType, repeatCount);
             //Console.WriteLine(parsedOpCode);
             program.AppendOpcode(parsedOpCode);
         }
+        
+        // Back patch the jump positions for JZ
+        foreach (var opcode in program.Instructions)
+        {
+            if (opcode.Type is not OpCodeType.JZ)
+            {
+                continue;
+            }
+            // If there is no closing bracket for the opening bracket this is here just set to 0, because the Parser will handle it 
+            closingBracketPositions.TryPop(out var correctClosingBracketPosition);
+            opcode.Repetition = correctClosingBracketPosition;
+        }
+
+        foreach (OpCode instruction in program.Instructions)
+        {
+            Console.WriteLine(instruction);
+        }
+        
         return program;
     }
 

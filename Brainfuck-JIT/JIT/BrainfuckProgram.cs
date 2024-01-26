@@ -16,7 +16,16 @@ public enum OpCodeType
     JNZ = ']'
 }
 
-public record OpCode(OpCodeType Type, int Repetition);
+public class OpCode(OpCodeType Type, int Repetition)
+{
+    public OpCodeType Type { get; set; } = Type;
+    public int Repetition { get; set; } = Repetition;
+
+    public override string ToString()
+    {
+        return $"{{ Type = {Type}, Repetition = {Repetition} }}";
+    }
+}
 public class BrainfuckProgram
 {
 
