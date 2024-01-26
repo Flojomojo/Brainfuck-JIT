@@ -1,4 +1,6 @@
-﻿namespace Brainfuck_JIT;
+﻿using Brainfuck_JIT.JIT;
+
+namespace Brainfuck_JIT;
 
 class Program
 {
@@ -6,7 +8,8 @@ class Program
     {
         string program = LoadProgram("hello_world.bf");
         Console.WriteLine("Loaded program");
-        JIT.JIT.Run(program);
+        Interpreter interpreter = new();
+        interpreter.Run(program); 
     }
 
     static string LoadProgram(string filename)
