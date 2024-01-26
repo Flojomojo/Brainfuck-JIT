@@ -10,6 +10,9 @@ class Program
         if (args.Length < 2)
         {
             Console.WriteLine("Not enough command line args");
+            Console.WriteLine("Usage:");
+            Console.WriteLine("\t dotnet run {brainfuck_program.bf} {filename_of_output_asm}");
+            Environment.Exit(1);
         }
         string bfFilename = args[0];
         string outputFilename = args[1];
