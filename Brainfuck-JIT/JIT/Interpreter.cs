@@ -73,7 +73,7 @@ public class Interpreter
     {
         // First make sure everything is reset
         Reset();
-        int lastJumpPosition = -1;
+        Stack<int> lastJumpPositions = [];
         // Iterate over all instructions and execute them line by line
         for (int i = 0; i < program.Instructions.Count; i++)
         {
@@ -135,35 +135,32 @@ public class Interpreter
                     // if the byte at the data pointer is zero, then instead of moving the instruction pointer forward to the next command, jump it forward to the command after the matching ] command.
                     if (intValue == 0)
                     {
-                        if (lastJumpPosition == -1)
+                        if (lastJumpPositions.Count == 0)
                         {
                             // The jump position has not been set before (should not happen)
-                            Console.WriteLine($"Invalid jump position {lastJumpPosition}");
+                            Console.WriteLine($"No jump position set for JZ at {i}");
                             Environment.Exit(0);
                         }
-
-                        i = lastJumpPosition;
-                        break;
+                        // Need to subtract one because the for loop will add one
+                        i = lastJumpPositions.Pop() - 1;
                     }
-
-                    lastJumpPosition = i;
+                    lastJumpPositions.Push(i);
                     break;
                 case OpCodeType.JNZ:
                     // if the byte at the data pointer is non-zero, then instead of moving the instruction pointer forward to the next command, jump it forward to the command after the matching ] command.
                     if (intValue != 0)
                     {
                         // The jump position has not been set before (should not happen)
-                        if (lastJumpPosition == -1)
+                        if (lastJumpPositions.Count == 0)
                         {
-                            Console.WriteLine($"Invalid jump position {lastJumpPosition}");
+                            Console.WriteLine($"No jump position set for JNZ at {i}");
                             Environment.Exit(0);
                         }
-
-                        i = lastJumpPosition;
+                        // Need to subtract one because the for loop will add one
+                        i = lastJumpPositions.Pop() - 1;
                         break;
                     }
-
-                    lastJumpPosition = i;
+                    lastJumpPositions.Push(i);
                     break;
                 default:
                     // Invalid opcode (should just be ignored)

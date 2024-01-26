@@ -4,7 +4,7 @@ namespace Brainfuck_JIT;
 
 class Program
 {
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         string program = LoadProgram("hello_world.bf");
         Console.WriteLine("Loaded program");
@@ -12,7 +12,7 @@ class Program
         interpreter.Run(program); 
     }
 
-    static string LoadProgram(string filename)
+    private static string LoadProgram(string filename)
     {
         // Check if file exists
         if (!File.Exists(filename))
