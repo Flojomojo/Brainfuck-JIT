@@ -2,10 +2,11 @@
 
 ## Features
 - Syntax error handling
-- OOB error handling
 - Runs any bf "program"
 - Easy to understand code
-- Note: Currently only a interpreter is implemented
+- Interpreter in C#
+- JIT compiles to nasm
+- Tested only on linux (might work on windows with minor modifications)
 
 ## References
 - https://en.wikipedia.org/wiki/Brainfuck
