@@ -63,6 +63,18 @@ public class Lexer(string programString)
                 }
             }
             
+            // If there is something like ++++-- this should translate INC 2
+            if (parsedOpCodeType is OpCodeType.INC or OpCodeType.DEC)
+            {
+                while (Peek(0) is '-' or '+')
+                {
+                    if (Consume() == '-')
+                        repeatCount--;
+                    else
+                        repeatCount++;
+                }
+            }
+            
             // For JZ and JNZ the "repetitions" are the jump positions
             // This is done via back patching for JZ
             if (parsedOpCodeType is OpCodeType.JZ)
@@ -92,6 +104,12 @@ public class Lexer(string programString)
             // If there is no closing bracket for the opening bracket this is here just set to 0, because the Parser will handle it 
             closingBracketPositions.TryPop(out var correctClosingBracketPosition);
             opcode.Repetition = correctClosingBracketPosition;
+        }
+        
+        // Print all opcodes
+        foreach (OpCode code in program.Instructions)
+        {
+            Console.WriteLine(code);
         }
         
         return program;
