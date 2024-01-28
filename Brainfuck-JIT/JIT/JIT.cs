@@ -8,8 +8,9 @@ public class JIT
     /// Compiles a brainfuck program to a nasm program
     /// </summary>
     /// <param name="program">The program to compile</param>
-    /// <param name="filename">The filename that the compiled executable shoudl have</param>
-    public void Compile(BrainfuckProgram program, string filename)
+    /// <param name="filename">The filename that the compiled executable should have</param>
+    /// <param name="comment">If comments should be added to the asm file</param>
+    public static void Compile(BrainfuckProgram program, string filename, bool comment)
     {
         // Load the boilerplate.asm file
         string[] boilerplate = File.ReadAllLines("boilerplate.asm");
@@ -26,7 +27,7 @@ public class JIT
 
         string[] header = boilerplate[0..(replaceWordIndex)];
         string[] footer = boilerplate[(replaceWordIndex + 1)..];
-        string[] code = ToAsm(program);
+        string[] code = ToAsm(program, comment);
         WriteFile(header,footer, code, $"{filename}.asm");
         RunCompileCommand(filename);
         Console.WriteLine($"Program compiled! Execute './{filename}' to run");
@@ -38,7 +39,7 @@ public class JIT
     /// <param name="commandName">The command to check for availability</param>
     /// <param name="arguments">The args of the command</param>
     /// <returns>True if the command is available</returns>
-    static bool IsCommandAvailable(string commandName, string arguments)
+    private static bool IsCommandAvailable(string commandName, string arguments)
     {
         try
         {
@@ -158,20 +159,21 @@ public class JIT
         result.AddRange(code);
         result.AddRange(footer);
         File.WriteAllLines(filename, result);
-        // TODO compile it
     }
 
     /// <summary>
     /// Converts a program to asm code
     /// </summary>
     /// <param name="program">The program to convert</param>
+    /// <param name="comment">If comments should be added to the asm</param>
     /// <returns>The asm code</returns>
-    private static string[] ToAsm(BrainfuckProgram program)
+    private static string[] ToAsm(BrainfuckProgram program, bool comment)
     {
         List<string> result = [];
         foreach (OpCode instruction in program.Instructions)
         {
-            result.AddRange(instruction.Asm);
+            string[] asm = comment ? instruction.Asm : instruction.RawAsm;
+            result.AddRange(asm);
         }
         return result.ToArray();
     }

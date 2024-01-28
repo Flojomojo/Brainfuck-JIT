@@ -16,6 +16,8 @@ class Program
         public string? BfFilename { get; set; } 
         [Option('i', "interpret", Default=false, HelpText = "Instead of jitting the file, interpret it.")]
         public bool Interpret { get; set; }
+        [Option("comment", Default = true, HelpText = "Add comments to the *.asm file (slower to generate the code, same execution time)")]
+        public bool Comment { get; set; }
     }
     public static void Main(string[] args)
     {
@@ -41,8 +43,7 @@ class Program
         }
         else
         {
-            JIT.JIT jit = new();
-            jit.Compile(program, outputFilename);
+            JIT.JIT.Compile(program, outputFilename, args.Comment);
         }
     }
     
