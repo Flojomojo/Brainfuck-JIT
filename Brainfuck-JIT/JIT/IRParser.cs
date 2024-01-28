@@ -1,6 +1,6 @@
 namespace Brainfuck_JIT.JIT;
 
-public static class IR
+public static class IRParser
 {
     /// <summary>
     /// Parse a program string into a brainfuck program
@@ -9,9 +9,10 @@ public static class IR
     /// <returns>The parsed brainfuck program</returns>
     public static BrainfuckProgram Parse(string programString)
     {
-        // Parse and execute the program
+        // Tokenize 
         Lexer lexer = new Lexer(programString);
         BrainfuckProgram program = lexer.Tokenize();
+        // Parse and report syntax errors
         Parser parser = new(program, programString);
         parser.Parse();
         return program;
