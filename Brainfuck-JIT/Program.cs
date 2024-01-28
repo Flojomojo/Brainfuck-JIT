@@ -7,15 +7,16 @@ class Program
 {
     public static void Main(string[] args)
     {
-        if (args.Length < 2)
+        if (args.Length < 1)
         {
             Console.WriteLine("Not enough command line args");
             Console.WriteLine("Usage:");
-            Console.WriteLine("\t dotnet run {brainfuck_program.bf} {filename_of_output_asm}");
+            Console.WriteLine("\t dotnet run {brainfuck_program.bf}");
             Environment.Exit(1);
         }
         string bfFilename = args[0];
-        string outputFilename = args[1];
+        string outputFilename = bfFilename.Split(".")[0];
+        Console.WriteLine(outputFilename);
         string programString = LoadProgram(bfFilename);
         Console.WriteLine($"Loaded program {bfFilename}");
         BrainfuckProgram program = IR.Parse(programString);

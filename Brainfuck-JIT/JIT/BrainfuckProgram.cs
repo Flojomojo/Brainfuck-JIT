@@ -17,10 +17,11 @@ public enum OpCodeType
     JNZ = ']'
 }
 
-public class OpCode(OpCodeType type, int repetition)
+public class OpCode(OpCodeType type, int repetition, int index)
 {
     public OpCodeType Type { get; set; } = type;
-    public int Repetition { get; set; } = repetition;
+
+    public int Repetition = repetition;
 
     /// <summary>
     /// The asm of the opcode
@@ -29,7 +30,8 @@ public class OpCode(OpCodeType type, int repetition)
     {
         get
         {
-            string[] lines = _opCodeToAsmTable.TryGetValue(this.Type, out string[]? value) ? value : [""];
+            this.UpdateTable();
+            string[] lines = _opCodeToAsmTable.TryGetValue(this.Type, out string[]? value) ? value : [$"; {this.Type}"];
             if (this.Type == OpCodeType.OUT)
             {
                // There is no way of easily outputting twice in assembly so we just have to duplicate the code as many times as we have repetitions
@@ -56,45 +58,50 @@ public class OpCode(OpCodeType type, int repetition)
         }
     }
 
+    private void UpdateTable()
+    {
+        this._opCodeToAsmTable = new Dictionary<OpCodeType, string[]>
+        {
+            { OpCodeType.INC, [$"add byte [r12], {this.Repetition}"]},
+            { OpCodeType.DEC, [$"sub byte [r12], {this.Repetition}"]},
+            { OpCodeType.INCDP, [$"add r12, {this.Repetition}"]},
+            { OpCodeType.DECDP, [$"sub r12, {this.Repetition}"]},
+            { OpCodeType.OUT, [
+                    "mov rax, SYS_WRITE",
+                    "mov rdi, STDOUT",
+                    "mov rsi, r12",
+                    "mov rdx, 1",
+                    "syscall"
+                ]},
+            { OpCodeType.JZ, [
+                "cmp byte [r12], 0",
+                $"je END_LOOP_{this.Repetition}",
+                $"START_LOOP_{index}:"
+            ]},
+            { OpCodeType.JNZ, [
+                "cmp byte [r12], 0",
+                $"jne START_LOOP_{this.Repetition}",
+                $"END_LOOP_{index}:"
+            ]},
+            { OpCodeType.INP, [
+                "mov rax, SYS_READ",
+                "mov rdi, STDIN",
+                "mov rsi, r12",
+                "mov rdx, 1",
+                "syscall"
+            ]}
+        };
+    }
+
 
     /// <summary>
     /// The table of opcodes to assembly
     /// </summary>
-    private readonly Dictionary<OpCodeType, string[]> _opCodeToAsmTable = new()
-    {
-        { OpCodeType.INC, [$"add byte [r12], {repetition}"]},
-        { OpCodeType.DEC, [$"sub byte [r12], {repetition}"]},
-        { OpCodeType.INCDP, [$"add r12, {repetition}"]},
-        { OpCodeType.DECDP, [$"sub r12, {repetition}"]},
-        { OpCodeType.OUT, [
-                "mov rax, SYS_WRITE",
-                "mov rdi, STDOUT",
-                "mov rsi, r12",
-                "mov rdx, 1",
-                "syscall"
-            ]},
-        { OpCodeType.JZ, [
-            "cmp byte [r12], 0",
-            $"je END_LOOP_{repetition-1}",
-            $"START_LOOP_{repetition}:"
-        ]},
-        { OpCodeType.JNZ, [
-            "cmp byte [r12], 0",
-            $"jne START_LOOP_{repetition}",
-            $"END_LOOP_{repetition-1}:"
-        ]},
-        { OpCodeType.INP, [
-            "mov rax, SYS_READ",
-            "mov rdi, STDIN",
-            "mov rsi, r12",
-            "mov rdx, 1",
-            "syscall"
-        ]}
-    };
+    private Dictionary<OpCodeType, string[]> _opCodeToAsmTable = new();
 
     public override string ToString()
     {
-        return $"{{ Type = {Type}, Repetition = {Repetition} }}";
+        return $"{{ Type = {Type}, Repetition = {Repetition}, Index = {index} }}";
     }
 }
 public class BrainfuckProgram

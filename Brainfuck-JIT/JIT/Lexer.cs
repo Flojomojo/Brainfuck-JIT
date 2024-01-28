@@ -47,6 +47,8 @@ public class Lexer(string programString)
         while(Peek(0) is not null)
         {
             char opcode = Consume();
+            if (!IsValidOpCode(opcode))
+                continue;
             // Check if the char is actually a valid opcode
             OpCodeType parsedOpCodeType = (OpCodeType)opcode;
             // If there are repeating characters count them
@@ -75,11 +77,11 @@ public class Lexer(string programString)
                 repeatCount = correctOpeningBracketPosition;
             }
             
-            OpCode parsedOpCode = new(parsedOpCodeType, repeatCount);
+            OpCode parsedOpCode = new(parsedOpCodeType, repeatCount, program.Instructions.Count);
             //Console.WriteLine(parsedOpCode);
             program.AppendOpcode(parsedOpCode);
         }
-        
+         
         // Back patch the jump positions for JZ
         foreach (var opcode in program.Instructions)
         {
@@ -110,7 +112,7 @@ public class Lexer(string programString)
             // Check if the char is actually a valid opcode
             OpCodeType parsedOpCodeType = (OpCodeType)opcode;
             // If there are repeating characters count them
-            OpCode parsedOpCode = new(parsedOpCodeType, 1);
+            OpCode parsedOpCode = new(parsedOpCodeType, 1, -1);
             program.AppendOpcode(parsedOpCode);
         }
         return program;
