@@ -13,7 +13,7 @@
 - Have dotnet sdk version >= 8.0 installed
 - Clone it and cd into the folder
 - Run via
-  `dotnet run {bf_program.bf} {binary_output_filename}`
+  `dotnet run {bf_program.bf}`
 
 ## References
 - https://en.wikipedia.org/wiki/Brainfuck
