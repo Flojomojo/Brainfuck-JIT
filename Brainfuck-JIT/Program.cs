@@ -35,7 +35,7 @@ class Program
         string outputFilename = bfFilename.Split(".")[0];
         string programString = LoadProgram(bfFilename);
         Console.WriteLine($"Loaded program '{bfFilename}'");
-        BrainfuckProgram program = IR.Parse(programString);
+        BrainfuckProgram program = IRParser.Parse(programString);
         if (args.Interpret)
         {
             Interpreter interpreter = new();
