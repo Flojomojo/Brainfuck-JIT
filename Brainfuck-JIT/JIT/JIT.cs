@@ -29,6 +29,7 @@ public class JIT
         string[] code = ToAsm(program);
         WriteFile(header,footer, code, $"{filename}.asm");
         RunCompileCommand(filename);
+        Console.WriteLine($"Program compiled! Execute './{filename}' to run");
     }
    
     /// <summary>
@@ -95,13 +96,13 @@ public class JIT
 
         if (process.ExitCode != 0)
         {
-            Console.WriteLine($"Command failed with exit code {process.ExitCode}");
+            Console.WriteLine($"Command '{command}' failed with exit code {process.ExitCode}");
             Console.WriteLine($"Output: {output}");
             Console.WriteLine($"Error: {error}");
         }
         else
         {
-            Console.WriteLine($"Command executed successfully");
+            Console.WriteLine($"Command '{command}' executed successfully");
         }
     }
 
